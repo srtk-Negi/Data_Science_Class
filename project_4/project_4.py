@@ -13,17 +13,25 @@ def main():
         return
 
     soup = BeautifulSoup(result.content, "html.parser")
-    table_rows = soup.find_all(
-        "table", class_="wikitable sortable plainrowheaders"
-    )[0].find("tbody").find_all("tr")
+    content_table = soup.find_all(
+        "table", class_="wikitable sortable plainrowheaders")[0]
+    content_rows = content_table.find("tbody").find_all("tr")
 
-    for row in table_rows[2:]:
-        state = row.find_all("th", scope="row")
-        print(state)
-        break
+    states = []
+    population = []
+    for row in content_rows[2:]:
+        states.append(row.find("th", scope="row").find("a").text)
+        population.append(row.find("div", style="float:right;").text)
 
-    # with open("/Users/Sarthak/Desktop/School Projects/Data Science/project_4/states.html", "a") as f:
-    #     f.write(table_body.prettify())
+    state_population_map = {}
+    for i in range(len(states)):
+        state_population_map[states[i]] = population[i]
+
+    df = pd.DataFrame(list(state_population_map.items()),
+                      columns=['State', 'Population'])
+
+    print(df)
+    df.to_csv("us_info.csv")
 
 
 if __name__ == '__main__':
